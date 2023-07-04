@@ -1,0 +1,21 @@
+{
+  "name": "vinyl-room-be",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node .",
+    "dev": "nodemon ."
+  },
+  "author": "xabier hernandez",
+  "license": "ISC",
+  "dependencies": {
+    "apollo-server": "^3.12.0",
+    "dotenv": "^16.3.1",
+    "mongoose": "^7.3.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.22"
+  },
+  "type": "module"
+}
