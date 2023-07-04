@@ -1,4 +1,5 @@
 import { ApolloServer } from 'apollo-server';
+
 import typeDefs  from './db/schema.js';
 import resolvers from './db/resolvers.js';
 import connectDB from './config/db.js';
