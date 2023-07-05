@@ -7,6 +7,9 @@ const typeDefs = gql`
         title: String
         artist: String
         price: Int
+        image: String
+        discount: Int
+        edition: String
     }
 
     type User {
@@ -22,9 +25,12 @@ const typeDefs = gql`
     }
 
     input VinylInput {
-        title: String
-        artist: String
-        price: Int
+        title: String!
+        artist: String!
+        price: Int!
+        image: String!
+        discount: Int
+        edition: String
     }
 
     input UserInput {
@@ -40,13 +46,17 @@ const typeDefs = gql`
     }
 
     type Query {
-        getVinyls(input: VinylInput!): [Vinyl]
+        getVinyls: [Vinyl]
+        getVinyl(id: ID!): Vinyl
         getUser(token: String!): User
     }
 
     type Mutation {
         newUser(input: UserInput): User
         userAuth(input: AuthInput): Token
+        newVinyl(input: VinylInput): Vinyl
+        editVinyl(id: ID!, input: VinylInput): Vinyl
+        deleteVinyl(id: ID!): String
     }
 `
 
