@@ -2,6 +2,7 @@ import { gql } from "apollo-server"
 
 const typeDefs = gql`
 
+    scalar File
     type Vinyl {
         id: ID
         title: String
@@ -28,7 +29,7 @@ const typeDefs = gql`
         title: String!
         artist: String!
         price: Int!
-        image: String!
+        image: String
         discount: Int
         edition: String
     }

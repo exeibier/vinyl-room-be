@@ -7,6 +7,17 @@ const { genSalt, hash, compare } = pkg;
 const { sign, verify } = jsonwebtoken;
 dotenv.config({path:'.env'})
 
+
+const toBase64 = file => new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => {
+        resolvers(reader.result);
+        return render.result
+    }
+    reader.onerror = (error) => reject(error);
+})
+
 const createToken = (user, secret, expiresIn) => {
     const {id, email, name, lastName} = user;
     return sign({ id, email, name, lastName }, secret, { expiresIn });
@@ -76,9 +87,12 @@ const resolvers = {
             token: createToken(userExists, process.env.SECRET, '24h')
            } 
         },
-        newVinyl: async(_, {input}, ctx) => {
+        newVinyl: async(_, {input}) => {
             try {
-                const vinyl = new Vinyl(input);
+                const {image} = input;
+                const imageBase64 = toBase64(image);
+                const vinyl = new Vinyl({...input, image: imageBase64});
+
                 //Save in DB
                 const result = await vinyl.save();
                 
@@ -87,7 +101,7 @@ const resolvers = {
                 console.log('Error while storing vinyl');
             }
         },
-        editVinyl: async(_, {id, input}, ctx) => {
+        editVinyl: async(_, {id, input}) => {
             try {
               let vinyl = Vinyl.findById(id);
 
@@ -104,7 +118,7 @@ const resolvers = {
                 console.log('Unable to edit Vinyl', error);
             }
         },
-        deleteVinyl: async (_,{id}, ctx) => {
+        deleteVinyl: async (_,{id}) => {
             try {
                 const vinyl = Vinyl.findById(id);
 

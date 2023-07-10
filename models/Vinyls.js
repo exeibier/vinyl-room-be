@@ -14,8 +14,7 @@ const VinylsSchema = new Schema({
         required: true
     },
     image: {
-        type: Buffer,
-        required: true,
+        type: String,
     },
     discount: {
         type: Number,
