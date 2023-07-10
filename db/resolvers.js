@@ -1,4 +1,5 @@
 import User from "../models/Users.js";
+import Vinyl from "../models/Vinyls.js";
 import pkg from 'bcryptjs';
 import jsonwebtoken from "jsonwebtoken";
 import dotenv from "dotenv";
@@ -6,14 +7,40 @@ const { genSalt, hash, compare } = pkg;
 const { sign, verify } = jsonwebtoken;
 dotenv.config({path:'.env'})
 
+
+const toBase64 = file => new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => {
+        resolvers(reader.result);
+        return render.result
+    }
+    reader.onerror = (error) => reject(error);
+})
+
 const createToken = (user, secret, expiresIn) => {
     const {id, email, name, lastName} = user;
     return sign({ id, email, name, lastName }, secret, { expiresIn });
 }
 const resolvers = {
     Query: {
-        getVinyls: (_, {input}, ctx) => {
+        getVinyls: async () => {
+            try {
+                const vinyls = await Vinyl.find({});
 
+                return vinyls;
+            } catch (error) {
+                console.log('Error while fetching vinyls')
+            }
+        },
+        getVinyl: async (_, {id}) => {
+            const vinyl = await Vinyl.findById(id);
+
+            if(!vinyl) {
+                throw new Error('Unable to find vinyl')
+            }
+
+            return vinyl;
         },
         getUser:async (_, {token}) => {
             const userId = await verify(token, process.env.SECRET)
@@ -59,6 +86,53 @@ const resolvers = {
            return {
             token: createToken(userExists, process.env.SECRET, '24h')
            } 
+        },
+        newVinyl: async(_, {input}) => {
+            try {
+                const {image} = input;
+                const imageBase64 = toBase64(image);
+                const vinyl = new Vinyl({...input, image: imageBase64});
+
+                //Save in DB
+                const result = await vinyl.save();
+                
+                return result;
+            } catch (error) {
+                console.log('Error while storing vinyl');
+            }
+        },
+        editVinyl: async(_, {id, input}) => {
+            try {
+              let vinyl = Vinyl.findById(id);
+
+                if(!vinyl) {
+                    throw new Error('Vinyl not found');
+                }
+
+                //Edit in DB
+                vinyl = await Vinyl.findOneAndUpdate({_id: id}, input, {new: true});
+                
+                return vinyl;
+
+            } catch (error) {
+                console.log('Unable to edit Vinyl', error);
+            }
+        },
+        deleteVinyl: async (_,{id}) => {
+            try {
+                const vinyl = Vinyl.findById(id);
+
+                if(!vinyl) {
+                    throw new Error('Vinyl not found');
+                }
+    
+                //Delete from DB
+                await vinyl.findOneAndDelete({_id : id});
+
+                return 'Vinyl deleted'
+            } catch (error) {
+                console.log('Unable to delete vinyl', error);
+            }
         }
 
     }
